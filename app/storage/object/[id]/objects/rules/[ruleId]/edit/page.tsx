@@ -55,7 +55,7 @@ export default function EditRulePage({ params }: { params: { id: string; ruleId:
         id: "3",
         name: "another-bucket",
         region: "In-Hyderabad-1",
-        size: "1.23 GB"
+        size: "1.23 GB",
         createdOn: "2025-06-15T10:00:00",
         status: "success",
         accessControl: "public",
