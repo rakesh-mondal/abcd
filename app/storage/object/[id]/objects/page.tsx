@@ -1623,7 +1623,7 @@ export default function BucketObjectsPage({ params }: { params: Promise<{ id: st
                         Don't have keys?{" "}
                         <button
                           onClick={handleCreateAPIKeys}
-                          className="text-green-600 hover:text-green-700 font-medium hover:underline focus:outline-none focus:underline"
+                          className="text-black hover:text-gray-700 font-medium hover:underline focus:outline-none focus:underline transition-colors duration-200"
                         >
                           Create API keys
                         </button>
