@@ -5,8 +5,9 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { AuthProvider } from "@/components/auth/auth-provider"
+import { UserProvider } from "@/components/auth/user-context"
 import { TopHeader } from "@/components/navigation/top-header"
-import { LeftNavigation } from "@/components/navigation/left-navigation"
+import LeftNavigation from "@/components/navigation/left-navigation"
 import { Toaster } from "@/components/ui/toaster"
 import { ScrollFadeContainer } from "@/components/ui/scroll-fade-container"
 
@@ -37,6 +38,7 @@ export default function ClientLayout({
 
   return (
     <AuthProvider>
+      <UserProvider>
       {isAuthPage ? (
         <>{children}</>
       ) : (
@@ -88,6 +90,7 @@ export default function ClientLayout({
         </div>
       )}
       <Toaster />
+      </UserProvider>
     </AuthProvider>
   )
 }

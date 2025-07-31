@@ -9,40 +9,35 @@ import { Button } from "@/components/ui/button"
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Card, CardContent } from "@/components/ui/card"
+import { LowCreditModal } from "@/components/billing/low-credit-modal"
+import { BucketNamingRulesModal } from "@/components/modals/bucket-naming-rules-modal"
+import { useRouter } from "next/navigation"
+import { useUser } from "@/components/auth/user-context"
 
-// Mock data for object storage buckets - empty for new users
-const mockBuckets: any[] = [
+// Mock data for object storage buckets
+const allMockBuckets = [
   {
-    id: "bucket-1",
-    name: "project-assets",
-    region: "us-east-1",
-    size: "12.4 GB",
-    createdOn: "2024-04-10T14:23:00Z",
-    status: "success",
-  },
-  {
-    id: "bucket-2",
-    name: "logs-archive",
-    region: "eu-west-1",
-    size: "2.1 TB",
-    createdOn: "2024-03-22T09:10:00Z",
-    status: "success",
-  },
-  {
-    id: "bucket-3",
-    name: "media-backups",
-    region: "ap-south-1",
-    size: "850 MB",
-    createdOn: "2024-05-01T18:45:00Z",
+    id: "1",
+    name: "checkbucket1",
+    region: "In-Bangalore-1",
+    size: "0.00 B",
+    createdOn: "2025-04-24T07:25:59",
     status: "updating",
   },
   {
-    id: "bucket-4",
-    name: "user-uploads",
-    region: "us-west-2",
-    size: "0 B",
-    createdOn: "2024-05-10T11:00:00Z",
+    id: "2",
+    name: "vm-bucket-23",
+    region: "In-Bangalore-1",
+    size: "0.00 B",
+    createdOn: "2025-05-29T14:56:13",
+    status: "success",
+  },
+  {
+    id: "3",
+    name: "another-bucket",
+    region: "In-Hyderabad-1",
+    size: "1.23 GB",
+    createdOn: "2025-06-15T10:00:00",
     status: "success",
   },
 ]
@@ -51,6 +46,14 @@ export default function ObjectStoragePage() {
   const [selectedBucket, setSelectedBucket] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const { toast } = useToast()
+  const [showLowCreditModal, setShowLowCreditModal] = useState(false)
+  const [showNamingRulesModal, setShowNamingRulesModal] = useState(false)
+  const router = useRouter()
+  const { isExistingUser } = useUser()
+
+  // Dynamic bucket data based on user type from context
+  // For testing, we'll default to existing user view
+  const mockBuckets = isExistingUser ? allMockBuckets : []
 
   const handleDeleteClick = (bucket: any) => {
     setSelectedBucket(bucket)
@@ -103,8 +106,13 @@ export default function ObjectStoragePage() {
   }
 
   const handleCreateBucket = () => {
-    // Navigate to create bucket page
-    window.location.href = '/storage/object/create'
+    // For new users (no buckets), navigate to create form
+    // For existing users (has buckets), show low credit modal
+    if (mockBuckets.length === 0) {
+      router.push("/storage/object/create")
+    } else {
+      setShowLowCreditModal(true)
+    }
   }
 
   const columns = [
@@ -147,23 +155,34 @@ export default function ObjectStoragePage() {
       ),
     },
     {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (value: string) => <StatusBadge status={value} />, 
+    },
+    {
       key: "createdOn",
       label: "Creation Date",
       sortable: true,
       render: (value: string) => {
-        const date = new Date(value);
+        const date = new Date(value)
+        const formattedDate = date.toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+        const formattedTime = date.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        })
         return (
           <div className="text-muted-foreground leading-5">
-            {date.toLocaleDateString()} {date.toLocaleTimeString()}
+            {formattedDate} at {formattedTime}
           </div>
-        );
+        )
       },
-    },
-    {
-      key: "status",
-      label: "Status",
-      sortable: true,
-      render: (value: string) => <StatusBadge status={value} />,
     },
     {
       key: "actions",
@@ -337,27 +356,25 @@ export default function ObjectStoragePage() {
     >
       <div className="space-y-6">
         {mockBuckets.length === 0 ? (
-          <Card className="mt-8">
-            <CardContent>
-              <EmptyState
-                title="No Storage Buckets Yet"
-                description="Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security."
-                actionText="Create Your First Bucket"
-                onAction={handleCreateBucket}
-                icon={objectStorageIcon}
-              />
-            </CardContent>
-          </Card>
-        ) : (
-          <ShadcnDataTable
-            columns={columns}
-            data={dataWithActions}
-            searchableColumns={["name", "region"]}
-            defaultSort={{ column: "createdOn", direction: "desc" }}
-            enableSearch={true}
-            enablePagination={true}
-            onRefresh={handleRefresh}
+          <EmptyState
+            title="No Storage Buckets Yet"
+            description="Create your first storage bucket to start storing and managing your files in the cloud. Storage buckets provide scalable object storage with built-in redundancy and security."
+            actionText="Create Your First Bucket"
+            onAction={handleCreateBucket}
+            icon={objectStorageIcon}
           />
+        ) : (
+          <>
+            <ShadcnDataTable
+              columns={columns}
+              data={dataWithActions}
+              searchableColumns={["name", "region"]}
+              defaultSort={{ column: "createdOn", direction: "desc" }}
+              enableSearch={true}
+              enablePagination={true}
+              onRefresh={handleRefresh}
+            />
+          </>
         )}
       </div>
 
@@ -367,6 +384,20 @@ export default function ObjectStoragePage() {
         resourceName={selectedBucket?.name || ""}
         resourceType="Bucket"
         onConfirm={handleDeleteConfirm}
+      />
+
+      <LowCreditModal
+        open={showLowCreditModal}
+        onClose={() => setShowLowCreditModal(false)}
+        onAddCredit={() => {
+          setShowLowCreditModal(false)
+          router.push("/billing/add-credits")
+        }}
+      />
+
+      <BucketNamingRulesModal
+        open={showNamingRulesModal}
+        onClose={() => setShowNamingRulesModal(false)}
       />
     </PageLayout>
   )

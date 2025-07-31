@@ -276,19 +276,19 @@ export function ShadcnDataTable<T = any>({
           <button
             type="button"
             onClick={() => column.toggleSorting(isSorted === "asc")}
-            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-center group w-full ${col.align === "right" ? "justify-end" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
+            className={`h-auto p-0 font-medium hover:bg-muted/50 transition-colors duration-200 flex items-start group w-full ${col.align === "right" ? "justify-end" : "text-left"} pr-2 py-1 rounded-md ${isActive ? "bg-muted font-bold" : ""}`}
             style={{ minWidth: 0 }}
           >
             <span className="truncate">{col.label}</span>
             {/* Only show arrow if this is the active sort column */}
             {isActive && (
-              <span className="ml-2 inline-block transition-transform duration-300 ease-in-out" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
+              <span className="ml-2 inline-block transition-transform duration-300 ease-in-out mt-0.5" style={{ transform: isSorted === "desc" ? "rotate(0deg)" : "rotate(180deg)" }}>
                 <ArrowDown className="h-4 w-4 text-primary" />
               </span>
             )}
             {/* Show faded arrow on hover for sortable but inactive columns */}
             {!isActive && (
-              <span className="ml-2 opacity-0 group-hover:opacity-40 transition-opacity duration-200">
+              <span className="ml-2 opacity-0 group-hover:opacity-40 transition-opacity duration-200 mt-0.5">
                 <ArrowUp className="h-4 w-4" />
               </span>
             )}
